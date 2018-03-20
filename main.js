@@ -27,6 +27,7 @@ document.getElementById("clickMe").onclick = fetchTasks;
 	RETURN:		none
 
  **********************************************************************************/
+
 function saveTask(e) {
   var taskDesc = document.getElementById('taskDescInput').value;
   var taskDuedate = document.getElementById('taskDuedateInput').value;
@@ -126,6 +127,7 @@ function deleteTask(id, filter) {
 	RETURN:		none
 
  **********************************************************************************/
+
 function fetchTasks(filter) {
   var tasks = JSON.parse(localStorage.getItem('tasks'));
   var tasksListe = document.getElementById('tasksList');
@@ -145,11 +147,13 @@ function fetchTasks(filter) {
     var assignedTo = tasks[i].assignedTo;
     var status = tasks[i].status;
 
+    // Change the color of label and button based on status
     if ( status == 'Completed' ){
       var statButton = 'btn-success';
       var statLabel = 'label-success';
     }
-    else if (( duedateSplit == curDateSliced ) || ( duedateSplit == tomorrowSliced) || (( curDateSliced > duedateSplit ) && ( tasks[i].status !== 'Completed' ))){
+    else if (( duedateSplit == curDateSliced ) || ( duedateSplit == tomorrowSliced) 
+             || (( curDateSliced > duedateSplit ) && ( tasks[i].status !== 'Completed' ))){
       var statButton = 'btn-warning';
       var statLabel = 'label-warning';
     }
@@ -158,6 +162,7 @@ function fetchTasks(filter) {
       var statLabel = 'label-info';
     }
  
+    // Set the condition based on the filter argument
     if ( filter == 'showoverdue' ){
       var condition = ( curDateSliced > duedateSplit ) && ( tasks[i].status !== 'Completed' );
     } else if ( filter == 'showcompleted' ){
