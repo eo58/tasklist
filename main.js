@@ -18,11 +18,11 @@ document.getElementById("clickMe").onclick = fetchTasks;
 
 /***********************************************************************************
  
-	FUNCTION NAME:	saveTask(e)
+	FUNCTION NAME:	saveTask()
                   
-	PURPOSE:        Loads the task details provided by user to local storage
+	PURPOSE:        Create and insert the task object values into local storage
  
-	ARGUMENTS:	e
+	ARGUMENTS:	e: event - Prevent from submitting the form
  
 	RETURN:		none
 
@@ -32,9 +32,12 @@ function saveTask(e) {
   var taskDesc = document.getElementById('taskDescInput').value;
   var taskDuedate = document.getElementById('taskDuedateInput').value;
   var taskAssignedTo = document.getElementById('taskAssignedToInput').value;
+  // Use the chance library for a global unique identifier
   var taskId = chance.guid();
+  // Every task is open by default
   var taskStatus = 'Open';
 
+  // Create the object
   var task = {
     id: taskId,
     description: taskDesc,
@@ -43,6 +46,7 @@ function saveTask(e) {
     status: taskStatus
   }
 
+  // Insert the object into local storage
   if (localStorage.getItem('tasks') == null) {
     var tasks = [];
     tasks.push(task);
@@ -53,7 +57,8 @@ function saveTask(e) {
     tasks.push(task);
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }
-
+  
+  // Reset and prevent the form from submitting
   document.getElementById('taskInputForm').reset();
   e.preventDefault();
 }
@@ -67,7 +72,7 @@ function saveTask(e) {
                         is clicked by user
  
 	ARGUMENTS:	id: global unique identifier for the task
-			filter: defines condition to show filtered tasks on page
+			filter: defines condition used to show filtered tasks on page
  
 	RETURN:		none
 
@@ -83,7 +88,6 @@ function setStatusCompleted(id, filter) {
   }
 
   localStorage.setItem('tasks', JSON.stringify(tasks));
-
   fetchTasks(filter);
 }
 
@@ -111,7 +115,6 @@ function deleteTask(id, filter) {
   }
 
   localStorage.setItem('tasks', JSON.stringify(tasks));
-
   fetchTasks(filter);
 }
 
@@ -120,7 +123,7 @@ function deleteTask(id, filter) {
  
 	FUNCTION NAME:	fetchTasks(filter)
                   
-	PURPOSE:        Fetches the tasks to display on page
+	PURPOSE:        Fetches the list of tasks that are available
  
 	ARGUMENTS:	filter: defines condition to show filtered tasks on page
  
@@ -129,6 +132,7 @@ function deleteTask(id, filter) {
  **********************************************************************************/
 
 function fetchTasks(filter) {
+  // Parse the return value from the local storage and get item tasks
   var tasks = JSON.parse(localStorage.getItem('tasks'));
   var tasksListe = document.getElementById('tasksList');
   tasksList.innerHTML = '';
@@ -137,42 +141,56 @@ function fetchTasks(filter) {
     var id = tasks[i].id;
     var desc = tasks[i].description;
     var duedate = tasks[i].duedate;
-    var duedate2 = duedate.split('T')[0];
-    var duedateSplit = duedate.split('T')[0];
-    var curDateSliced = new Date().toISOString().slice(0,10);
+    var duedateDate = duedate.split('T')[0];
+    var duedateTime = duedate.split('T')[1];
     var tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    var tomorrowSliced = tomorrow.toISOString().slice(0,10);
-    var curDate = new Date().toISOString().slice(0,10);
+    var tomorrowDate = tomorrow.toISOString().slice(0,10);
     var assignedTo = tasks[i].assignedTo;
     var status = tasks[i].status;
 
-    // Change the color of label and button based on status
+    // Get the EST date
+    var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+    var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0,10);
+
+    // Capture only the time from the date format 
+    var localISOTime2 = (new Date(Date.now() - tzoffset)).toISOString().slice(11,16);
+
+
+    // Change the color of label, button and assign a status string based on task status
     if ( status == 'Completed' ){
       var statButton = 'btn-success';
       var statLabel = 'label-success';
+      var statusSta = ''
     }
-    else if (( duedateSplit == curDateSliced ) || ( duedateSplit == tomorrowSliced) 
-             || (( curDateSliced > duedateSplit ) && ( tasks[i].status !== 'Completed' ))){
+    else if (( duedateDate == localISOTime ) || ( duedateDate == tomorrowDate ) || 
+             ( localISOTime > duedateDate )){
+      var statusSta = ': Due Soon'
+      if ((( localISOTime > duedateDate ) && ( status !== 'Completed' )) ||
+         (( localISOTime == duedateDate ) && ( localISOTime2 > duedateTime ) && ( status !== 'Completed' ))) {
+        var statusSta = ': Overdue';
+      }
       var statButton = 'btn-warning';
       var statLabel = 'label-warning';
     }
     else{
       var statButton = 'btn-info';
       var statLabel = 'label-info';
+      var statusSta = ''
     }
  
-    // Set the condition based on the filter argument
+    // Set the filter conditions based on the filter parameter
     if ( filter == 'showoverdue' ){
-      var condition = ( curDateSliced > duedateSplit ) && ( tasks[i].status !== 'Completed' );
+      var condition = ((( localISOTime > duedateDate ) && ( status !== 'Completed' )) || 
+                      (( localISOTime == duedateDate ) && ( localISOTime2 > duedateTime ) && ( status !== 'Completed' )));
     } else if ( filter == 'showcompleted' ){
       var condition = tasks[i].status == 'Completed';
     } else if ( filter == 'dueToday' ){
-      var condition = duedateSplit == curDateSliced;
+      var condition = (duedateDate == localISOTime) && ( duedateTime > localISOTime2 );
     } else if ( filter == 'dueTomorrow' ){
-      var condition = duedateSplit == tomorrowSliced;
+      var condition = duedateDate == tomorrowDate;
     } else if ( filter == 'dueSoon' ){
-      var condition = ( duedateSplit == curDateSliced ) || ( duedateSplit == tomorrowSliced );
+      var condition = (( duedateDate == localISOTime ) && ( duedateTime > localISOTime2 )) || ( duedateDate == tomorrowDate );
     } else {
       var condition = true;
     }
@@ -180,7 +198,7 @@ function fetchTasks(filter) {
     if ( condition ){
       tasksList.innerHTML +=   '<div class="well">'+
                                '<h6>Task ID: ' + id + '</h6>'+
-                               '<p><span class="label '+ statLabel +'">' + status + '</span></p>'+
+                               '<p><span class="label '+ statLabel +'">' + status + statusSta +'</span></p>'+
                                '<p><span class="glyphicon glyphicon-list-alt"></span> ' + desc + '</p>'+
                                '<p><span class="glyphicon glyphicon-time"></span> ' + duedate + '</p>'+
                                '<p><span class="glyphicon glyphicon-tasks"></span> ' + assignedTo + '</p>'+
