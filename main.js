@@ -2,9 +2,9 @@
 
 	FILE NAME:	main.js
 	
-	PURPOSE:	Manage to-do web application tool
+	PURPOSE:	To-do Task Web Application Tool
 
-	APPLICATION:	To-do Management Tool
+	APPLICATION:	Task Management Tool
 
 	CONTENTS:	saveTask()
                         setStatusCompleted()
@@ -143,23 +143,24 @@ function fetchTasks(filter) {
     var duedate = tasks[i].duedate;
     var duedateDate = duedate.split('T')[0];
     var duedateTime = duedate.split('T')[1];
-    var tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    var tomorrowDate = tomorrow.toISOString().slice(0,10);
     var assignedTo = tasks[i].assignedTo;
     var status = tasks[i].status;
 
     // Get the EST date
     var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
     var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0,10);
+ 
+    // Calculate the date for the next day
+    var tomorrow = (new Date(Date.now() - tzoffset))
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    var tomorrowDate = tomorrow.toISOString().slice(0,10);
 
-    // Capture only the time from the date format 
+    // Capture the time from the date format 
     var localISOTime2 = (new Date(Date.now() - tzoffset)).toISOString().slice(11,16);
 
 
     // Change the color of label, button and assign a status string based on task status
     if ( status == 'Completed' ){
-      var statButton = 'btn-success';
       var statLabel = 'label-success';
       var statusSta = ''
     }
@@ -170,11 +171,9 @@ function fetchTasks(filter) {
          (( localISOTime == duedateDate ) && ( localISOTime2 > duedateTime ) && ( status !== 'Completed' ))) {
         var statusSta = ': Overdue';
       }
-      var statButton = 'btn-warning';
       var statLabel = 'label-warning';
     }
     else{
-      var statButton = 'btn-info';
       var statLabel = 'label-info';
       var statusSta = ''
     }
@@ -186,11 +185,11 @@ function fetchTasks(filter) {
     } else if ( filter == 'showcompleted' ){
       var condition = tasks[i].status == 'Completed';
     } else if ( filter == 'dueToday' ){
-      var condition = (duedateDate == localISOTime) && ( duedateTime > localISOTime2 );
+      var condition = (duedateDate == localISOTime);
     } else if ( filter == 'dueTomorrow' ){
       var condition = duedateDate == tomorrowDate;
     } else if ( filter == 'dueSoon' ){
-      var condition = (( duedateDate == localISOTime ) && ( duedateTime > localISOTime2 )) || ( duedateDate == tomorrowDate );
+      var condition = ( duedateDate == localISOTime ) || ( duedateDate == tomorrowDate );
     } else {
       var condition = true;
     }
@@ -202,7 +201,7 @@ function fetchTasks(filter) {
                                '<p><span class="glyphicon glyphicon-list-alt"></span> ' + desc + '</p>'+
                                '<p><span class="glyphicon glyphicon-time"></span> ' + duedate + '</p>'+
                                '<p><span class="glyphicon glyphicon-tasks"></span> ' + assignedTo + '</p>'+
-                               '<a href="#" onclick="setStatusCompleted(\''+id+'\',\''+filter+'\')" class="btn '+ statButton +'">Complete</a> '+
+                               '<a href="#" onclick="setStatusCompleted(\''+id+'\',\''+filter+'\')" class="btn btn-primary">Complete</a> '+
                                '<a href="#" onclick="deleteTask(\''+id+'\',\''+filter+'\')" class="btn btn-danger">Delete</a>'+
                                '</div>';
     }
