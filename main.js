@@ -195,7 +195,7 @@ function fetchTasks(filter) {
     }
 
     if ( condition ){
-      tasksList.innerHTML +=   '<div class="well">'+
+      tasksList.innerHTML +=   '<br><div class="well">'+
                                '<h6>Task ID: ' + id + '</h6>'+
                                '<p><span class="label '+ statLabel +'">' + status + statusSta +'</span></p>'+
                                '<p><span class="glyphicon glyphicon-list-alt"></span> ' + desc + '</p>'+

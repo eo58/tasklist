@@ -8,24 +8,12 @@
   </head>
   <body>
     <div class="container">
-      <h2>Task Display Filters</h2>
       <div class="btn-group btn-group-justified">
         <form id="taskInputForm">
-          <div class="btn-group">
-            <button type="button" class="btn btn-primary" onclick="window.open('./index.html', '_self');">Main Page</button>
-          </div>
-          <div class="btn-group">
-            <button type="button" class="btn btn-primary" onclick="fetchTasks('showall');">Show All</button>
-          </div>
-          <div class="btn-group">
-            <button type="button" class="btn btn-primary" onclick="fetchTasks('showcompleted');">Show Completed</button>
-          </div>
-           <div class="btn-group">
-            <button type="button" class="btn btn-primary" onclick="fetchTasks('showoverdue');">Show Overdue</button>
-          </div>
-          <div class="btn-group">
-            <button type="button" class="btn btn-primary">Filter by Date</button>
-            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+          <button type="button" class="btn btn-primary btn-block" onclick="window.open('./index.html', '_self');">Main Page</button></br>
+          <div class="btn-group" style="width:100%">
+            <button type="button" style="width:22%" class="btn btn-primary">Filter by Date</button>
+            <button type="button" style="width:3%" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
               <span class="caret"></span>
             </button>
             <ul class="dropdown-menu" role="menu">
@@ -33,6 +21,9 @@
               <li><a href="#"onclick="fetchTasks('dueTomorrow');">Tomorrow</a></li>
               <li><a href="#"onclick="fetchTasks('dueSoon');">Both</a></li>
             </ul>
+            <button type="button" style="width:25%" class="btn btn-primary" onclick="fetchTasks('showall');">Show All</button>
+            <button type="button" style="width:25%" class="btn btn-primary" onclick="fetchTasks('showcompleted');">Show Completed</button>
+            <button type="button" style="width:25%" class="btn btn-primary" onclick="fetchTasks('showoverdue');">Show Overdue</button>
           </div>
           <div class="dropdown">
         </form>
